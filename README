@@ -1,0 +1,196 @@
+NAME
+    Captcha::Stateless - A stateless captcha implementation that stores
+    state in an HTTP cookie in the browser.
+
+SYNOPSIS
+      use Captcha::Stateless;
+      use CGI;
+
+      my $slcaptcha = Captcha::Stateless->new(
+        keyfile => '/path/to/keyfile',
+        expire => 600
+      );
+
+      my $cookievalue = $slcaptcha->encrypt($random_number);
+
+      my $captchavalid = $slcaptcha->validate(
+        cookie  => $q->cookie('slcaptcha'),
+        entered => $q->param('captcha-entered')
+      );
+
+DESCRIPTION
+    Captcha::Stateless implements a Captcha that stores the expected
+    response value in an encrypted HTTP cookie on the authenticating
+    browser:
+
+      /cgi-bin/slcaptcha 
+        -> Captcha image, encrypted HTTP cookie 
+          -> Browser
+
+      Browser
+        -> Manually entered response, stored encrypted cookie 
+          -> /cgi-bin/application
+
+    The target audience are "self-hosted" applications. Load balancing
+    should work provided the client is appropriately stickied to one server
+    or all servers share the same encryption key.
+
+USAGE
+  CAPTCHA IMAGE GENERATION
+    Captcha image generation can be handled by any external Captcha
+    generator such as GD::SecurityImage:
+
+      use GD::SecurityImage;
+
+      my $image = GD::SecurityImage->new(
+        width   => 100,
+        height  => 50,
+        lines   => 8,
+        ptsize  => 25,
+        font    => '/usr/share/fonts/truetype/ttf-staypuft/StayPuft.ttf'
+      );
+
+      $image->random();
+      $image->create(ttf => 'ec');
+
+      my ($image_data, $mime_type, $random_number) = $image->out;
+
+  CAPTCHA GENERATION
+    From GD::SecurityImage's output, Captcha::Stateless will use the
+    $random_number value for generating the cookie.
+
+      use Captcha::Stateless;
+      use CGI;
+
+      my $slcaptcha = Captcha::Stateless->new(
+        keyfile => '/path/to/keyfile',
+        expire => 600
+      );
+
+    Deliver image to client and set the encrypted cookie:
+
+      my $q=CGI->new;
+
+      print $q->header(
+        -type    => "image/$mime_type",
+        -charset => '',
+        -cookie  => cookie(
+          -name  => 'slcaptcha',
+          -value => $slcaptcha->encrypt($random_number),
+          -path  => '/cgi-bin'
+        )
+      );
+   
+      print $image_data;
+      exit;
+
+    See the sample slcaptcha CGI script in the distribution.
+
+  CAPTCHA KEY FILE
+    For the key, save 16 random bytes in any file readable by the web
+    server:
+
+      openssl rand -hex -out /path/foo/keyfile.dat 16
+
+  CAPTCHA INTEGRATION
+    Fixme: Sample HTML
+
+  CAPTCHA VALIDATION
+    The receiving application will receive an entered value from the browser
+    along with the cookie that contains the desired value in encrypted form.
+
+      use Captcha::Stateless;
+      use CGI;
+
+      my $q=CGI->new;
+
+      my $slcaptcha = Captcha::Stateless->new(
+        keyfile => '/path/to/keyfile',
+      );
+
+      my $captchavalid = Captcha::Stateless->validate(
+        cookie  => $q->cookie('slcaptcha'),
+        entered => $q->param('captcha-entered')
+      );
+
+      if ($captchavalid){
+            # Let good things happen
+      }else{
+            # Display the error string from $slcaptcha->error();
+      }
+
+    See the sample slcapapp CGI script in the distribution.
+
+CLASS METHODS
+  *new()*
+    Instantiate the module with basic settings such as the keyfile and the
+    expiration time for the generated Captchas.
+
+      my $slcaptcha = Captcha::Stateless->new(
+        keyfile => '/path/to/keyfile',
+        expire  => 600                    # Default 600 seconds
+      );
+
+  *error()*
+    Show the current error message.
+
+      my $whatwentwrong = $slcaptcha->error();
+
+OBJECT METHODS
+  *encrypt()*
+    Takes the random number provided by your Captcha image generator,
+    appends the expiration time, encrypts them using Blowfish and Hex
+    encodes them for being passed to the client as an HTTP cookie.
+
+      my $cookievalue = $slcaptcha->encrypt($random_number);
+
+  *validate()*
+    Takes the HTTP cookie returned from the client (after completion of the
+    Captcha quiz), decrypts it, checks for the correct content and whether
+    it is still valid, and compares it to the value entered on the client.
+
+      my $ = $slcaptcha->encrypt($random_number);
+      my $captchavalid = Captcha::Stateless->validate(
+        cookie  => $q->cookie('slcaptcha'),
+        entered => $q->param('captcha-entered')
+      );
+
+    Returns 1 on success, 0 on validation failure.
+
+BUGS & SUGGESTIONS
+    No known bugs.
+
+    Very open to review and maybe ports of the core concept to other
+    languages.
+
+LIMITATIONS
+    No scalability tests have been conducted.
+
+    No security review has been conducted. The author may be completely
+    deluded.
+
+AUTHOR & LICENSE
+    Martin Schmitt <mas at scsy dot de>, 2018
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+SEE ALSO
+    perl, Crypt::CBC, Crypt::Blowfish, GD::SecurityImage, CGI.
+
