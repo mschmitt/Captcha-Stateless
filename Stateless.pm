@@ -247,7 +247,7 @@ Show the current error message.
 =head2 I<encrypt()>
 
 Takes the random number provided by your Captcha image generator, appends
-the expiration time, encrypts them using AES and Base64 encodes them for
+the expiration time, encrypts them using Blowfish and Hex encodes them for
 being passed to the client as an HTTP cookie.
 
   my $cookievalue = $slcaptcha->encrypt($random_number);
