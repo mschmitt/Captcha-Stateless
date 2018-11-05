@@ -84,7 +84,7 @@ USAGE
       print $image_data;
       exit;
 
-    See the sample slcaptcha CGI script in the distribution.
+    See the sample slcapapp CGI script in the distribution.
 
   CAPTCHA KEY FILE
     For the key, save 16 random bytes in any file readable by the web
@@ -93,7 +93,7 @@ USAGE
       openssl rand -hex -out /path/foo/keyfile.dat 16
 
   CAPTCHA INTEGRATION
-    Fixme: Sample HTML
+    See the sample slcapapp CGI script in the distribution.
 
   CAPTCHA VALIDATION
     The receiving application will receive an entered value from the browser
@@ -149,13 +149,15 @@ OBJECT METHODS
     Captcha quiz), decrypts it, checks for the correct content and whether
     it is still valid, and compares it to the value entered on the client.
 
-      my $ = $slcaptcha->encrypt($random_number);
       my $captchavalid = Captcha::Stateless->validate(
         cookie  => $q->cookie('slcaptcha'),
         entered => $q->param('captcha-entered')
       );
 
     Returns 1 on success, 0 on validation failure.
+
+STATUS
+    Development
 
 BUGS & SUGGESTIONS
     No known bugs.
@@ -167,7 +169,7 @@ LIMITATIONS
     No scalability tests have been conducted.
 
     No security review has been conducted. The author may be completely
-    deluded.
+    deluded or a genius, your guess is as good as mine.
 
 AUTHOR & LICENSE
     Martin Schmitt <mas at scsy dot de>, 2018

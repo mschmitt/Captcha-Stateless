@@ -185,7 +185,7 @@ Deliver image to client and set the encrypted cookie:
   print $image_data;
   exit;
 
-See the sample B<slcaptcha> CGI script in the distribution.
+See the sample B<slcapapp> CGI script in the distribution.
 
 =head2 CAPTCHA KEY FILE
 
@@ -195,7 +195,7 @@ For the key, save 16 random bytes in any file readable by the web server:
 
 =head2 CAPTCHA INTEGRATION
 
-Fixme: Sample HTML
+See the sample B<slcapapp> CGI script in the distribution.
 
 =head2 CAPTCHA VALIDATION
 
@@ -258,13 +258,16 @@ Takes the HTTP cookie returned from the client (after completion of the
 Captcha quiz), decrypts it, checks for the correct content and whether it 
 is still valid, and compares it to the value entered on the client.
 
-  my $ = $slcaptcha->encrypt($random_number);
   my $captchavalid = Captcha::Stateless->validate(
     cookie  => $q->cookie('slcaptcha'),
     entered => $q->param('captcha-entered')
   );
 
 Returns 1 on success, 0 on validation failure.
+
+=head1 STATUS
+
+Development
 
 =head1 BUGS & SUGGESTIONS
 

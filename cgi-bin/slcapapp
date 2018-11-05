@@ -1,0 +1,10 @@
+#!/usr/bin/perl -w
+use strict;
+use diagnostics;
+use CGI;
+use Captcha::Stateless;
+
+# This example CGI app will run in three modes:
+# 1) Present a form with captcha (default)
+# 2) Generate a captcha to be IMG SRCed in the output from 1) (q=generate-captcha)
+# 3) Receive a response and check the captcha (q=check-captcha)
