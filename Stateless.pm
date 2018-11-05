@@ -1,11 +1,5 @@
 package Captcha::Stateless;
 
-# https://metacpan.org/source/MSCHMITT/Date-Holidays-DE-2.00/DE.pm
-# https://metacpan.org/source/MSCHMITT/File-Navigate-1.0/Navigate.pm
-# https://metacpan.org/pod/Crypt::Rijndael
-
-# openssl rand -hex -out key 16
-
 use strict;
 use warnings;
 
