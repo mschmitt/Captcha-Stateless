@@ -10,7 +10,7 @@ require Exporter;
 
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw();
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 
 sub new{
 	my $class = shift;
@@ -276,7 +276,8 @@ Very open to review and maybe ports of the core concept to other languages.
 
 No scalability tests have been conducted. 
 
-No security review has been conducted. The author may be completely deluded.
+No security review has been conducted. The author may be completely deluded
+or a genius, your guess is as good as mine.
 
 =head1 AUTHOR & LICENSE
 
