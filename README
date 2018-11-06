@@ -166,6 +166,9 @@ BUGS & SUGGESTIONS
     languages.
 
 LIMITATIONS
+    Captchas, once solved, can be used repeatedly until they expire. Needs
+    to be worked around on an application basis.
+
     No scalability tests have been conducted.
 
     No security review has been conducted. The author may be completely

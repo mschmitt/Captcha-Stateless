@@ -10,7 +10,7 @@ require Exporter;
 
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw();
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 
 sub new{
 	my $class = shift;
@@ -276,6 +276,9 @@ No known bugs.
 Very open to review and maybe ports of the core concept to other languages.
 
 =head1 LIMITATIONS
+
+Captchas, once solved, can be used repeatedly until they expire. Needs 
+to be worked around on an application basis.
 
 No scalability tests have been conducted. 
 
