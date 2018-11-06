@@ -1,10 +1,31 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl -w
 use strict;
 use diagnostics;
-use CGI;
+use CGI qw(-utf8 -debug);
 use Captcha::Stateless;
+use GD::SecurityImage;
+
+my $q=CGI->new;
 
 # This example CGI app will run in three modes:
 # 1) Present a form with captcha (default)
-# 2) Generate a captcha to be IMG SRCed in the output from 1) (q=generate-captcha)
-# 3) Receive a response and check the captcha (q=check-captcha)
+# 2) Generate a captcha to be IMG SRCed in the output from 1) (mode=generate-captcha)
+# 3) Receive a response and check the captcha (mode=check-captcha)
+
+if (! defined $q->param('mode')){
+	print $q->header(-type => 'text/html', -charset => 'utf-8');
+	print <<EOF;
+	<html>
+	<head><title>Captcha Test</title></head>
+	<body>
+	<img src='slcapapp?mode=generate-captcha'/>
+	</body>
+	</html>
+EOF
+}elsif ($q->param('mode') eq 'generate-captcha'){
+	my $slcaptcha = Captcha::Stateless->new(
+		keyfile => 'demo.key'
+		);
+	
+}elsif ($q->param('mode') eq 'check-captcha'){
+}
