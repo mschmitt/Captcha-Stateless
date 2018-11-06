@@ -1,6 +1,7 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 use strict;
 use diagnostics;
+use FindBin qw($Bin);
 use CGI qw(-utf8 -debug);
 use Captcha::Stateless;
 use GD::SecurityImage;
@@ -18,14 +19,61 @@ if (! defined $q->param('mode')){
 	<html>
 	<head><title>Captcha Test</title></head>
 	<body>
-	<img src='slcapapp?mode=generate-captcha'/>
+	<form action='slcapapp' method='post'>
+	<input type='hidden' name='mode' value='check-captcha'/>
+	<img src='slcapapp?mode=generate-captcha' align='middle'/>
+	<input type='text' name='captcha-entered'/>
+	<input type='submit'/>
+	</form>
 	</body>
 	</html>
 EOF
+
 }elsif ($q->param('mode') eq 'generate-captcha'){
-	my $slcaptcha = Captcha::Stateless->new(
-		keyfile => 'demo.key'
-		);
-	
+	my $image = GD::SecurityImage->new(
+		width   => 80,
+		height  => 30,
+		lines   => 10,
+		gd_font => 'giant'
+	);
+	$image->random();
+	$image->create( normal => 'rect' );
+
+	my($image_data, $mime_type, $random_number) = $image->out;
+
+	my $slcaptcha = Captcha::Stateless->new(keyfile => "$Bin/demo.key");
+	print $q->header(
+		-type    => "image/$mime_type",
+		-charset => '',
+		-cookie  => $q->cookie (
+			-name    => 'slcaptcha',
+			-value   => $slcaptcha->encrypt($random_number),
+			-path    => '/cgi-bin'
+		)
+	);
+
+	print $image_data;
+
 }elsif ($q->param('mode') eq 'check-captcha'){
+	my $slcaptcha = Captcha::Stateless->new(keyfile => "$Bin/demo.key");
+	my $captchavalid = $slcaptcha->validate(
+		cookie  => $q->cookie('slcaptcha'),
+		entered => $q->param('captcha-entered')
+	);
+	my $response;
+	if ($captchavalid){
+		$response = "Captcha check succeeded."
+	}else{
+		$response = "Captcha check failed: " . $slcaptcha->error();
+	}
+	print $q->header(-type => 'text/html', -charset => 'utf-8');
+	print <<EOF;
+	<html>
+	<head><title>Captcha Result</title></head>
+	<body>
+	$response
+	</body>
+	</html>
+EOF
+	
 }

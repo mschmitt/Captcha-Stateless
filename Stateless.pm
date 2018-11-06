@@ -10,7 +10,7 @@ require Exporter;
 
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw();
-our $VERSION   = '0.03';
+our $VERSION   = '0.04';
 
 sub new{
 	my $class = shift;
@@ -95,11 +95,11 @@ sub _slurp_keyfile {
 1;
 __END__
 
-=head1 NAME
+=head1 Name
 
 Captcha::Stateless - A stateless captcha implementation that stores state in an HTTP cookie in the browser.
 
-=head1 SYNOPSIS
+=head1 Synopsis
 
   use Captcha::Stateless;
   use CGI;
@@ -116,7 +116,7 @@ Captcha::Stateless - A stateless captcha implementation that stores state in an 
     entered => $q->param('captcha-entered')
   );
 
-=head1 DESCRIPTION
+=head1 Description
 
 B<Captcha::Stateless> implements a Captcha that stores the expected response 
 value in an encrypted HTTP cookie on the authenticating browser:
@@ -133,9 +133,9 @@ The target audience are "self-hosted" applications. Load balancing should
 work provided the client is appropriately stickied to one server or all
 servers share the same encryption key.
 
-=head1 USAGE
+=head1 Usage
 
-=head2 CAPTCHA IMAGE GENERATION
+=head2 Captcha Image Generation
 
 Captcha image generation can be handled by any external Captcha generator
 such as B<GD::SecurityImage>:
@@ -155,10 +155,10 @@ such as B<GD::SecurityImage>:
 
   my ($image_data, $mime_type, $random_number) = $image->out;
 
-=head2 CAPTCHA GENERATION
+=head2 Captcha Generation
 
 From B<GD::SecurityImage>'s output, B<Captcha::Stateless> will use the 
-B<$random_number> value for generating the cookie.
+I<$random_number> value for generating the cookie.
 
   use Captcha::Stateless;
   use CGI;
@@ -175,7 +175,7 @@ Deliver image to client and set the encrypted cookie:
   print $q->header(
     -type    => "image/$mime_type",
     -charset => '',
-    -cookie  => cookie(
+    -cookie  => $q->cookie(
       -name  => 'slcaptcha',
       -value => $slcaptcha->encrypt($random_number),
       -path  => '/cgi-bin'
@@ -185,19 +185,19 @@ Deliver image to client and set the encrypted cookie:
   print $image_data;
   exit;
 
-See the sample B<slcapapp> CGI script in the distribution.
+See the sample I<cgi-bin/slcapapp> CGI script in the distribution.
 
-=head2 CAPTCHA KEY FILE
+=head2 Captcha Key File
 
 For the key, save 16 random bytes in any file readable by the web server:
 
-  openssl rand -hex -out /path/foo/keyfile.dat 16
+  openssl rand -hex -out /path/to/keyfile.dat 16
 
-=head2 CAPTCHA INTEGRATION
+=head2 Captcha Integration
 
-See the sample B<slcapapp> CGI script in the distribution.
+See the sample I<cgi-bin/slcapapp> CGI script in the distribution.
 
-=head2 CAPTCHA VALIDATION
+=head2 Captcha Validation
 
 The receiving application will receive an entered value from the browser
 along with the cookie that contains the desired value in encrypted form.
@@ -211,7 +211,7 @@ along with the cookie that contains the desired value in encrypted form.
     keyfile => '/path/to/keyfile',
   );
 
-  my $captchavalid = Captcha::Stateless->validate(
+  my $captchavalid = $slcaptcha->validate(
     cookie  => $q->cookie('slcaptcha'),
     entered => $q->param('captcha-entered')
   );
@@ -222,9 +222,9 @@ along with the cookie that contains the desired value in encrypted form.
   	# Display the error string from $slcaptcha->error();
   }
 
-See the sample B<slcapapp> CGI script in the distribution.
+See the sample I<cgi-bin/slcapapp> CGI script in the distribution.
 
-=head1 CLASS METHODS
+=head1 Class Methods
 
 =head2 I<new()>
 
@@ -242,7 +242,7 @@ Show the current error message.
 
   my $whatwentwrong = $slcaptcha->error();
 
-=head1 OBJECT METHODS
+=head1 Object Methods
 
 =head2 I<encrypt()>
 
@@ -258,34 +258,39 @@ Takes the HTTP cookie returned from the client (after completion of the
 Captcha quiz), decrypts it, checks for the correct content and whether it 
 is still valid, and compares it to the value entered on the client.
 
-  my $captchavalid = Captcha::Stateless->validate(
+  my $captchavalid = $slcaptcha->validate(
     cookie  => $q->cookie('slcaptcha'),
     entered => $q->param('captcha-entered')
   );
 
 Returns 1 on success, 0 on validation failure.
 
-=head1 STATUS
+=head1 Status
 
-Development
+Testing.
 
-=head1 BUGS & SUGGESTIONS
+=head1 Live Demo
 
-No known bugs. 
+https://team-frickel.de/cgi-bin/Captcha-Stateless/slcapapp
 
-Very open to review and maybe ports of the core concept to other languages.
+=head1 Bugs & Suggestions
 
-=head1 LIMITATIONS
+No known showstopper bugs. 
 
-Captchas, once solved, can be used repeatedly until they expire. Needs 
-to be worked around on an application basis.
+Please use https://github.com/mschmitt/Captcha-Stateless for all feedback.
+
+=head1 Limitations
+
+Captchas, once solved, can be used repeatedly until they expire. Can be
+potentially worked around on an application basis e.g. by storing the 
+used encrypted cookie values.
 
 No scalability tests have been conducted. 
 
 No security review has been conducted. The author may be completely deluded
 or a genius, your guess is as good as mine.
 
-=head1 AUTHOR & LICENSE
+=head1 Author & License
 
 Martin Schmitt E<lt>mas at scsy dot deE<gt>, 2018
 
@@ -307,8 +312,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 DEALINGS IN THE SOFTWARE.
 
-=head1 SEE ALSO
+=head1 Dependencies
 
-L<perl>, L<Crypt::CBC>, L<Crypt::Blowfish>, L<GD::SecurityImage>, L<CGI>.
+=head2 Core 
+
+L<perl>, L<Crypt::CBC>, L<Crypt::Blowfish>
+
+=head2 Recommended
+
+L<GD::SecurityImage>, L<CGI>
 
 =cut
